@@ -1,3 +1,54 @@
+var wFirst = true;
+var pulbPole = [];
+var odkryto = [];
+var vlajecka = [];
+var bombPole1 = [];
+var bombPole2 = [];
+var bombPole3 = [];
+var pracuj = true;
+var first = false;
+var sirka;
+var vyska;
+
+//prvni stranka
+
+const app = document.getElementById("app");
+
+if (app) {
+    // Vytvoření nadpisu
+    const title = document.createElement("h1");
+    title.textContent = "Minesweeper";
+
+    // Vytvoření odstavce s textem
+    const description = document.createElement("p");
+    description.textContent = "Vyber obtížnost a hraj:";
+
+    // Vytvoření kontejneru
+    const container = document.createElement("div");
+    container.className = "container";
+
+    // Vytvoření jednotlivých tlačítek s úrovněmi
+    const levels = ["Lehka", "Stredni", "Tezka"];
+    levels.forEach(level => {
+        const item = document.createElement("div");
+        item.className = "item";
+
+        const button = document.createElement("button");
+        button.textContent = `${level.charAt(0).toUpperCase() + level.slice(1)} úroveň`;
+        button.onclick = () => strankoPrestup(level);
+
+        item.appendChild(button);
+        container.appendChild(item);
+    });
+
+    // Přidání vytvořených elementů do divu "app"
+    app.appendChild(title);
+    app.appendChild(description);
+    app.appendChild(container);
+} else {
+    console.log("Element s id 'app' nebyl nalezen.");
+}
+
 function strankoPrestup(param) {
     window.location.href = 'Game.html?myParam=' + encodeURIComponent(param);
 }
@@ -25,14 +76,20 @@ function nacti(){
         if(myParam == "Lehka"){
             console.log("lehka");
             stav(9, 9, 10);
+            sirka = 9;
+            vyska = 9;
         }
         if(myParam == "Stredni"){
             console.log("stredni");
             stav(16, 16, 40);
+            sirka = 16;
+            vyska = 16;
         }
         if(myParam == "Tezka"){
             console.log("tezka");
-            stav(16, 30, 99);
+            stav(16, 30, 300);
+            sirka = 30;
+            vyska = 16;
         }
         
     }
@@ -40,20 +97,38 @@ function nacti(){
 
 window.onload = nacti();
 
+//hlavni tabulka
+//zde je chyba
 function stav(radky, sloupce, pocet){
-    //vytvoreni pole naplnene nulami
     let bomb = pocet;
-    const pole = poleVytvarec(radky, sloupce, 0);
+    console.log(bomb);
+    let pole = [];
+
+    if(first){
+        pole = Array.from(pulbPole);
+        console.log(pulbPole);
+        console.log(pole);
+    }
+
+    //pokud stavim znova, tak to obejdu
+    if(!first){
+    //vytvoreni pole naplnene nulami
+    pole = poleVytvarec(radky, sloupce, 0);
     console.log(pole);
+    }   
 
     while(bomb > 0){
         let radRad = Math.floor(Math.random() * radky);
         let sloRad = Math.floor(Math.random() * sloupce);
         console.log(radRad + " a " + sloRad);
-        if((pole[radRad][sloRad] != 9) && (pole[radRad][sloRad] != null)){
+        console.log(pole[radRad][sloRad]);
+        if((pole[radRad][sloRad] < 9) && (pole[radRad][sloRad] != null)){
             pole[radRad][sloRad] += 9;
+            if((bombPole1.length + bombPole2.length + bombPole3.length) < 41) bombPole1.push(radRad + " + " + sloRad);
+            if(((bombPole1.length + bombPole2.length + bombPole3.length) > 40) && ((bombPole1.length + bombPole2.length + bombPole3.length) < 81)) bombPole2.push(radRad + " + " + sloRad);
+            if((bombPole1.length + bombPole2.length + bombPole3.length) > 80) bombPole3.push(radRad + " + " + sloRad);
             if((radRad+1 >= 0) && (sloRad >= 0) && (radRad+1 < radky) && (sloRad < sloupce)) pole[radRad+1][sloRad]++;             
-            if((radRad-1 > 0) && (sloRad > 0) && (radRad-1 < radky) && (sloRad < sloupce)) pole[radRad-1][sloRad]++;
+            if((radRad-1 >= 0) && (sloRad >= 0) && (radRad-1 < radky) && (sloRad < sloupce)) pole[radRad-1][sloRad]++;
             if((radRad+1 >= 0) && (sloRad+1 >= 0) && (radRad+1 < radky) && (sloRad < sloupce+1)) pole[radRad+1][sloRad+1]++;
             if((radRad-1 >= 0) && (sloRad+1 >= 0) && (radRad-1 < radky) && (sloRad+1 < sloupce)) pole[radRad-1][sloRad+1]++;
             if((radRad+1 >= 0) && (sloRad-1 >= 0) && (radRad+1 < radky) && (sloRad-1 < sloupce)) pole[radRad+1][sloRad-1]++;
@@ -64,113 +139,325 @@ function stav(radky, sloupce, pocet){
         }
     }
 
+    pulbPole = Array.from(pole);
+    console.log("dojto")
     vystav(radky, sloupce, pole);
-
+    console.log("vystaveno");
+    
 }
 
-/*
+//vystavi tabuklu z pole
 function vystav(radky, sloupce, pole) {
-    //element tabulka
     const table = document.createElement("table");
     table.style.borderCollapse = "collapse";
+    const errInfoElement = document.getElementById("ErrInfo");
+    const existingTable = errInfoElement.querySelector("table");
 
     for (let i = 0; i < radky; i++) {
-        const row = document.createElement("tr"); // Vytvoří nový řádek
+        const row = document.createElement("tr");
         for (let j = 0; j < sloupce; j++) {
-            const cell = document.createElement("td"); // Vytvoří buňku
-            cell.style.border = "1px solid black";
-            cell.style.padding = "10px";
-            //if(pole[i][j]==1){
-                //add https://www.w3schools.com/howto/howto_css_shake_image.asp
-                //createFlipBox("img_paris.jpg", "Paris", "What an amazing city");
-                //cell.appendChild(flipBox)
-            //}
-            cell.textContent = `Řádek ${i + 1}, Sloupec ${j + 1}`;
-            //cell.textContent = `Řádek ${i + 1}, Sloupec ${j + 1}`; // Nastaví text buňky
-            row.appendChild(cell); // Přidá buňku do řádku
-        }
-        table.appendChild(row); // Přidá řádek do tabulky
-    }
-
-    // Přidá tabulku do kontejneru na stránce
-    document.getElementById("ErrInfo").appendChild(table);
-    //document.getElementById("tableContainer").appendChild(table);
-}
-*/
-
-//data info
-//data set
-
-function vystav(radky, sloupce, pole) {
-    //element tabulka
-    const table = document.createElement("table");
-    table.style.borderCollapse = "collapse";
-
-    for (let i = 0; i < radky; i++) {
-        const row = document.createElement("tr"); // Vytvoří nový řádek
-        for (let j = 0; j < sloupce; j++) {
-            const cell = document.createElement("td"); // Vytvoří buňku
+            const cell = document.createElement("td"); 
             const img = document.createElement("img");
             cell.style.border = "0px solid black";
             cell.style.padding = "2px";
+
             console.log(pole[i][j])
 
             if(pole[i][j] == 0){
-                // Vytvoří obrázek a nastaví jeho vlastnosti
-                console.log("jsem v metodě");
-                img.src = "img/ZBomb.png";
-                img.alt = `Nulla ${i + 1}, Sloupec ${j + 1}`;
-                img.style.width = "50px";
-                img.style.height = "50px";
+                cell.appendChild(flipoTvor("ZBomb", i, j));
+                row.appendChild(cell);
             } else
 
-            if((pole[i][j] > 0) || (pole[i][j] < 9)){
-                // Vytvoří obrázek a nastaví jeho vlastnosti
+            if((pole[i][j] > 0) && (pole[i][j] < 9)){
                 let index = pole[i][j];
-                img.src = "img/" + index + "Bomb.png";
-                img.alt = `Řádek ${i + 1}, Sloupec ${j + 1}`;
-                img.style.width = "50px";
-                img.style.height = "50px";
+                cell.appendChild(flipoTvor(index + "Bomb", i, j));
+                row.appendChild(cell);
             }
 
             if(pole[i][j] >= 9){
-                // Vytvoří obrázek a nastaví jeho vlastnosti
-                let index = pole[i][j];
-                img.src = "img/Bomb.png";
-                img.alt = `Řádek ${i + 1}, Sloupec ${j + 1}`;
-                img.style.width = "50px";
-                img.style.height = "50px";
+                cell.appendChild(flipoTvor("Bomb", i, j));
+                row.appendChild(cell);
             }
-
-            cell.appendChild(img);
-
-            row.appendChild(cell);
-
-            /*
-            // Vytvoří obrázek a nastaví jeho vlastnosti
-            const img = document.createElement("img");
-            img.src = "img/Unknowpoint.png"; // Nahraďte URL_OBRÁZKU skutečnou URL
-            img.alt = `Řádek ${i + 1}, Sloupec ${j + 1}`;
-            img.style.width = "50px"; // Nastaví šířku obrázku
-            img.style.height = "50px"; // Nastaví výšku obrázku
-            */
-           
-            // Přidá obrázek do buňky
-            /*
-            cell.appendChild(img);
-
-            row.appendChild(cell); // Přidá buňku do řádku
-            */
+            //https://stackoverflow.com/questions/59927377/how-to-flip-image-on-click-in-javascript
         }
-        table.appendChild(row); // Přidá řádek do tabulky
+        table.appendChild(row);
     }
 
-    // Přidá tabulku do kontejneru na stránce
-    document.getElementById("ErrInfo").appendChild(table);
+    //pridej do stranky
+        // Pokud již existuje `table` uvnitř `ErrInfo`, odstraní se
+        if (existingTable) {
+            errInfoElement.removeChild(existingTable);
+            }
+        
+        // Nyní přidáme nový `table`
+        errInfoElement.appendChild(table);
 }
 
-// Zavolá funkci pro vytvoření tabulky 4x3
+//otoceni policka
+function flipoTvor(druh, i, j){
+    const flipCard = document.createElement('div');
+    flipCard.className = 'flip-card';
 
+    const flipCardInner = document.createElement('div');
+    flipCardInner.className = 'flip-card-inner';
+
+    const flipCardFront = document.createElement('div');
+    flipCardFront.className = 'flip-card-front';
+
+    //otoceni
+    flipCard.addEventListener('click', function handleClick(event) {
+        flipCardInner.classList.add('flipped');
+        flipCard.removeEventListener('click', handleClick);
+    });
+    
+    //predni cast
+    const img = document.createElement('img');
+    img.src = 'img/Unknowpoint.png';
+    img.alt = 'Neznamo';
+    img.id = i + ' + ' + j;
+    img.style.width = '50px';
+    img.style.height = '50px';
+
+    flipCardFront.appendChild(img);
+
+    //zadni cast
+    const flipCardBack = document.createElement('div');
+    flipCardFront.className = 'flip-card-front';
+
+    const imgH = document.createElement('img');
+    imgH.src = 'img/'+ druh +'.png';
+    imgH.alt = druh;
+    imgH.id = i + ' + ' + j;
+    imgH.style.width = '50px';
+    imgH.style.height = '50px';
+
+    flipCardBack.appendChild(imgH);
+    flipCardInner.appendChild(flipCardFront);
+    flipCardInner.appendChild(flipCardBack);
+    flipCard.appendChild(flipCardInner);
+
+    return flipCard;
+}
+
+//vlajeckovani
+document.addEventListener("contextmenu", function(event) {
+    if (event.target.tagName === 'IMG') {
+
+        function disableClicks(event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        function removeDisableClicks(event) {
+            event.removeEventListener('click', disableClicks);  //vyresit
+            event.removeEventListener('contextmenu', disableClicks);
+        }
+
+
+        const pozice = event.target.id;
+
+        //odvlajeckovani
+        if(vlajecka.includes(pozice)){
+            console.log(vlajecka);
+
+            //odendani vlajecky
+            vlajecka = vlajecka.filter(function(item) {
+                return item !== pozice
+            })
+
+            console.log(vlajecka);
+
+            console.log(pozice);
+            const delidlo = pozice.split(" ");
+            let i = delidlo[0];
+            let j = delidlo[2];
+
+            document.getElementById(i + ' + ' + j).src = "img/Unknowpoint.png";
+
+            document.getElementById(i + ' + ' + j).addEventListener('click', removeDisableClicks); 
+            
+            event.preventDefault();
+        
+        }else{
+            //pridej jen jednou 
+            vlajecka.push(pozice);
+
+            console.log(vlajecka);
+
+            console.log(pozice);
+            const delidlo = pozice.split(" ");
+            let i = delidlo[0];
+            let j = delidlo[2];
+
+            document.getElementById(i + ' + ' + j).src = "img/Marker.png";
+
+            disableClicks(event);
+
+            // Přidání posluchačů událostí pro všechny elementy
+            document.getElementById(i + ' + ' + j).addEventListener('click', disableClicks);      // Zablokování levého kliknutí
+            
+            event.preventDefault();
+        }
+    }
+});
+
+document.addEventListener('click', function(event) {
+    // Zkontrolujeme, zda bylo kliknuto na obrázek
+    if (event.target.tagName === 'IMG') {
+        console.log("klikam");
+        // Získáme ID obrázku
+        const pozice = event.target.id;
+
+        console.log(pozice);
+        const delidlo = pozice.split(" ");
+        let i = delidlo[0];
+        let j = delidlo[2];
+
+        //kotrola vyhry
+        console.log("kotrola vyhry: " + (vyska*sirka) + " == " + (odkryto.length + vlajecka.length) + " && " + vlajecka.length + " == " + bombPole1.length + bombPole2.length + bombPole3.length);
+        if((vyska*sirka) == ((odkryto.length + vlajecka.length)) && (vlajecka.lengt == (bombPole1.length + bombPole2.length + bombPole3.length))){
+            console.log("---vyhra!---");
+        }
+
+        console.log(pulbPole[i][j]);
+        if((pulbPole[i][j] < 1)&&(!odkryto.includes(pozice))){
+            console.log("mám " + pulbPole[i][j] + " a volnost!");
+            odkryvac(i, j);
+
+        }
+
+        if((pulbPole[i][j] > 8)&&(!odkryto.includes(pozice)&&(pracuj))){
+            //osetreni prvni hry
+            console.log("predmetoduji")
+            if(!first){
+                first = true;
+
+                console.log("Metoduji");
+                let pracPole = Array.from(pulbPole);
+                console.log(pulbPole);
+                alert(pulbPole);
+                pracPole[i][j] = pracPole[i][j]-9;
+                console.log(pracPole);
+                console.log("momenalně je na pracovím poli: " + pracPole[i][j]);
+                if(i != 0) pracPole[i-1][j] = pracPole[i-1][j]-1;
+                if(j != 0) pracPole[i][j-1]  = pracPole[i][j-1]-1;
+                if((i != 0) && (j != 0)) pracPole[i-1][j-1]  = pracPole[i-1][j-1]-1;
+                if(i != vyska) pracPole[i-0+1][j] = pracPole[i-0+1][j]-1;
+                if(j != sirka) pracPole[i][j-0+1] = pracPole[i][j-0+1]-1;
+                if((i != vyska) && (j != sirka)) pracPole[i-0+1][j+1]  = pracPole[i-0+1][j-0+1]-1;
+                if((i != 0) && (j != sirka)) pracPole[i-1][j-0+1] = pracPole[i-1][j-0+1]-1;
+                if((i != vyska) && (j != 0)) pracPole[i-0+1][j-1]  = pracPole[i-0+1][j-1]-1;
+
+                console.log(pracPole);
+
+                pulbPole = Array.from(pracPole);
+
+                console.log(bombPole1.length+bombPole2.length+bombPole3.length+1);
+
+                stav(vyska, sirka, 1);
+
+                document.getElementById(pozice).click();
+
+
+            }else{
+            
+            //hormadna detonace
+            pracuj = false;
+            console.log("mám " + pulbPole[i][j] + " a Bombu!");
+            while((bombPole1.length + bombPole2.length + bombPole3.length) > 0){
+                if(bombPole3.length > 0){
+                    let poziceBomby = bombPole3[length];
+                    bombPole3 = bombPole3.filter(function(item) {
+                        return item !== poziceBomby;
+                    })
+                    console.log(bombPole3);
+                    console.log("vybuch na miste:" + poziceBomby);
+                    document.getElementById(poziceBomby).click();
+                }
+                if(bombPole2.length > 0){
+                    let poziceBomby = bombPole2[length];
+                    bombPole2 = bombPole2.filter(function(item) {
+                        return item !== poziceBomby;
+                    })
+                    console.log(bombPole2);
+                    console.log("vybuch na miste:" + poziceBomby);
+                    document.getElementById(poziceBomby).click();
+                }
+                if(bombPole1.length > 0){
+                    let poziceBomby = bombPole1[length];
+                    bombPole1 = bombPole1.filter(function(item) {
+                        return item !== poziceBomby;
+                    })
+                    console.log(bombPole1);
+                    console.log("vybuch na miste:" + poziceBomby);
+                    document.getElementById(poziceBomby).click();
+                }
+                
+            }
+
+            //konec hry
+            console.log("---Prohra!---");
+
+            disableClicks(event);
+
+            function disableClicks(event) {
+                event.preventDefault(); // Zabrání výchozímu chování (včetně zobrazení kontextového menu)
+                event.stopPropagation(); // Zabrání šíření události
+            }
+            
+            // Přidání posluchačů událostí pro všechny elementy
+            document.querySelectorAll('*').forEach(element => {
+                element.addEventListener('click', disableClicks);      // Zablokování levého kliknutí
+                element.addEventListener('contextmenu', disableClicks); // Zablokování pravého kliknutí
+            });
+        }
+        }
+
+        first = true;
+        odkryto.push(pozice);
+        
+    }
+});
+
+function odkryvac(i, j){
+    let lokal = pulbPole[i][j];
+
+    let forward = i - 1;
+    let down = i - 0 + 1;
+    let right = j - 0 + 1;
+    let left = j - 0 - 1;
+
+    var nahoru = -1;
+    var dolu = -1;
+    var leva = -1;
+    var prava = -1;
+
+    console.log(i + " + " + j + "; " + forward + "-" + j + " + " + down + "-" + j + " + " + i + "-" + right + " + " + i + "-" + left);
+    if((forward != null)&&(forward > -1)&&(forward < vyska)) {nahoru = pulbPole[forward][j];} //neumyslny hack
+    if((down != null)&&(down > -1)&&(down < vyska)) {dolu = pulbPole[down][j];}
+    if((left != null)&&(left > -1)&&(left < sirka)) {leva = pulbPole[i][left];} //neumyslny hack
+    if((right != null)&&(right > -1)&&(right < sirka)) {prava = pulbPole[i][right];} //neumyslny hack
+
+    if((nahoru == 0)||((lokal == 0)&&(nahoru != -1)&&(nahoru < vyska))){
+        console.log(nahoru);
+        document.getElementById(forward + ' + ' + j).click();
+    }
+
+    if((dolu == 0)||((lokal == 0)&&(dolu != -1)&&(dolu < vyska))){
+        console.log(nahoru);
+        document.getElementById(down + ' + ' + j).click();
+    }
+
+    if((leva == 0)||((lokal == 0)&&(leva != -1)&&(leva < sirka))){
+        console.log(leva);
+        document.getElementById(i + ' + ' + left).click();
+    }
+
+    if((prava == 0)||((lokal == 0)&&(prava != -1)&&(prava < sirka))){
+        console.log(prava);
+        document.getElementById(i + ' + ' + right).click();
+    }
+}
 
 function poleVytvarec(radky, sloupce, naplnene = 0) {
     const array = new Array(radky);
