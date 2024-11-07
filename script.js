@@ -53,6 +53,10 @@ function strankoPrestup(param) {
     window.location.href = 'Game.html?myParam=' + encodeURIComponent(param);
 }
 
+function reloadPage() {
+    location.reload();  // Nacte starnku znovu
+}
+
 function nacti(){
     //nacteni
     const params = new URLSearchParams(window.location.search);
@@ -87,7 +91,7 @@ function nacti(){
         }
         if(myParam == "Tezka"){
             console.log("tezka");
-            stav(16, 30, 300);
+            stav(16, 30, 99);
             sirka = 30;
             vyska = 16;
         }
@@ -97,8 +101,41 @@ function nacti(){
 
 window.onload = nacti();
 
+let timerInterval;
+
+function startTimer(id) {
+    const startTime = Date.now();  // poc cas
+
+    function updateTime() {
+        const currentTime = Date.now();
+        const elapsedTime = currentTime - startTime;
+        const seconds = Math.floor(elapsedTime / 1000);
+
+        document.getElementById(id).textContent = `Čas od spuštění: ${seconds} s`;
+    }
+
+    timerInterval = setInterval(updateTime, 1000);
+}
+
+// zasdtaveni caovace
+function stopTimer() {
+    clearInterval(timerInterval);
+}
+
+startTimer("timerDisplay");  // vytovrim a spustiom casovac
+
+function setText() {
+    const element = document.getElementById("vlajBomb");
+    if (element) {  // Zkontroluje, zda element existuje
+        element.textContent = vlajecka.length + "/" + (bombPole1.length + bombPole2.length + bombPole3.length);
+    }
+}
+
+// Příklad použití
+setText(); 
+
+
 //hlavni tabulka
-//zde je chyba
 function stav(radky, sloupce, pocet){
     let bomb = pocet;
     console.log(bomb);
@@ -240,63 +277,59 @@ function flipoTvor(druh, i, j){
 }
 
 //vlajeckovani
-document.addEventListener("contextmenu", function(event) {
+document.addEventListener("contextmenu", function(event) { 
     if (event.target.tagName === 'IMG') {
-
-        function disableClicks(event) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-
-        function removeDisableClicks(event) {
-            event.removeEventListener('click', disableClicks);  //vyresit
-            event.removeEventListener('contextmenu', disableClicks);
-        }
-
-
+        let i = -1;
+        let j = -1;
         const pozice = event.target.id;
 
-        //odvlajeckovani
-        if(vlajecka.includes(pozice)){
-            console.log(vlajecka);
-
-            //odendani vlajecky
+        // Odvlaječkování
+        if (vlajecka.includes(pozice)) {
+            // Odebrání vlaječky
             vlajecka = vlajecka.filter(function(item) {
-                return item !== pozice
-            })
+                return item !== pozice;
+            });
 
-            console.log(vlajecka);
-
-            console.log(pozice);
             const delidlo = pozice.split(" ");
-            let i = delidlo[0];
-            let j = delidlo[2];
+            i = delidlo[0];
+            j = delidlo[2];
 
-            document.getElementById(i + ' + ' + j).src = "img/Unknowpoint.png";
+            let imgElement = document.getElementById(i + ' + ' + j);
+            imgElement.src = "img/Unknowpoint.png";
 
-            document.getElementById(i + ' + ' + j).addEventListener('click', removeDisableClicks); 
-            
+            // Odstranění `disableClicks` handleru z obrázku
+            imgElement.removeEventListener('click', disableClicks);
+
             event.preventDefault();
+
+            setText(); 
         
-        }else{
-            //pridej jen jednou 
-            vlajecka.push(pozice);
+        } else {
+            // Přidej vlaječku, pokud ještě není přidána
+            if(!vlajecka.includes(pozice)){
+                vlajecka.push(pozice);
+            }
 
-            console.log(vlajecka);
-
-            console.log(pozice);
             const delidlo = pozice.split(" ");
-            let i = delidlo[0];
-            let j = delidlo[2];
+            i = delidlo[0];
+            j = delidlo[2];
 
-            document.getElementById(i + ' + ' + j).src = "img/Marker.png";
+            let imgElement = document.getElementById(i + ' + ' + j);
+            imgElement.src = "img/Marker.png";
 
-            disableClicks(event);
+            // Přidání `disableClicks` pro zablokování kliknutí na obrázek
+            imgElement.addEventListener('click', disableClicks);
 
-            // Přidání posluchačů událostí pro všechny elementy
-            document.getElementById(i + ' + ' + j).addEventListener('click', disableClicks);      // Zablokování levého kliknutí
-            
             event.preventDefault();
+
+            setText(); 
+        }
+
+        function disableClicks(event) {
+            if(vlajecka.includes(!(i + " + " + j))){
+            event.preventDefault();
+            event.stopPropagation();
+            }
         }
     }
 });
@@ -305,6 +338,7 @@ document.addEventListener('click', function(event) {
     // Zkontrolujeme, zda bylo kliknuto na obrázek
     if (event.target.tagName === 'IMG') {
         console.log("klikam");
+
         // Získáme ID obrázku
         const pozice = event.target.id;
 
@@ -314,9 +348,16 @@ document.addEventListener('click', function(event) {
         let j = delidlo[2];
 
         //kotrola vyhry
-        console.log("kotrola vyhry: " + (vyska*sirka) + " == " + (odkryto.length + vlajecka.length) + " && " + vlajecka.length + " == " + bombPole1.length + bombPole2.length + bombPole3.length);
-        if((vyska*sirka) == ((odkryto.length + vlajecka.length)) && (vlajecka.lengt == (bombPole1.length + bombPole2.length + bombPole3.length))){
+        let bombPole = Number(bombPole1.length) + Number(bombPole2.length) + Number(bombPole3.length);
+        let vyresene =  Number(odkryto.length) + Number(vlajecka.length);
+        console.log(odkryto);
+        console.log("kontrola vyhry: " + (vyska*sirka) + " == " + (vyresene+1) + " && " + vlajecka.length + " == " + bombPole);
+        if (((vyska*sirka) == vyresene+1) && (vlajecka.length == bombPole)){
             console.log("---vyhra!---");
+            createPopup(true);
+            setTimeout(stopTimer, 0);
+
+            disableClicks(event);
         }
 
         console.log(pulbPole[i][j]);
@@ -397,6 +438,9 @@ document.addEventListener('click', function(event) {
 
             //konec hry
             console.log("---Prohra!---");
+            createPopup(false);
+            setTimeout(stopTimer, 0);
+
 
             disableClicks(event);
 
@@ -414,7 +458,9 @@ document.addEventListener('click', function(event) {
         }
 
         first = true;
-        odkryto.push(pozice);
+        if(!odkryto.includes(pozice)){
+            odkryto.push(pozice);
+        }
         
     }
 });
@@ -467,6 +513,20 @@ function poleVytvarec(radky, sloupce, naplnene = 0) {
     }
 
     return array;
+}
+
+function createPopup(win) {
+    var popup = open("", "Popup", "width=640,height=420");
+
+    var gifImg = popup.document.createElement("img");
+    if(win){
+        gifImg.src = "img/WinGIF.gif";
+    } else {
+    gifImg.src = "img/DefeatGIF.gif";
+        }
+    gifImg.alt = "Loading...";
+
+    popup.document.body.appendChild(gifImg);
 }
 
 function napisZpravu(){

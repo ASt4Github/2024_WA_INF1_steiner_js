@@ -13,9 +13,29 @@
 </head>
 <body>
     <h1 id="Uz">Zvolená úroveň je...</h1>
+    <div class="FP">
+        <div class="wrapper">
+            <div class="flexbox">
+                <div class="Fbox one">
+                    <!--<a href="#Be"><input type="button" id="button" value="Zpět na začátek"></a></div>-->
+                    <p>Minesweeper by ASt</p>
+                </div>
+                <div class="Fbox two">
+                    <p id="timerDisplay"></p>
+                </div>
+                <div class="Fbox three">
+                    <p>Počet vlaječek / počet bomb: </p>
+                    <p id="vlajBomb"></p>
+                </div>
+                <div class="Fbox four">
+                    <button onclick="reloadPage()">Restartovat hry</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <p>Pole je:</p>
     <p id="ErrInfo"></p>
-
-    <div id="tableContainer"></div>
 
     <!-- Načtení externího JavaScript souboru -->
     <script src="script.js" defer></script>
