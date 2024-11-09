@@ -13,6 +13,8 @@ var vyska;
 //prvni stranka
 
 const app = document.getElementById("app");
+const timerDisplay = document.getElementById("timerDisplay");
+const vlajBomb = document.getElementById("vlajBomb");
 
 if (app) {
     // Vytvoření nadpisu
@@ -122,7 +124,9 @@ function stopTimer() {
     clearInterval(timerInterval);
 }
 
-startTimer("timerDisplay");  // vytovrim a spustiom casovac
+if(timerDisplay){
+    startTimer("timerDisplay");  // vytovrim a spustiom casovac
+}
 
 function setText() {
     const element = document.getElementById("vlajBomb");
@@ -132,8 +136,9 @@ function setText() {
 }
 
 // Příklad použití
-setText(); 
-
+if(vlajBomb){
+    setText(); 
+}
 
 //hlavni tabulka
 function stav(radky, sloupce, pocet){
@@ -358,6 +363,17 @@ document.addEventListener('click', function(event) {
             setTimeout(stopTimer, 0);
 
             disableClicks(event);
+
+            function disableClicks(event) {
+                event.preventDefault(); // Zabrání výchozímu chování (včetně zobrazení kontextového menu)
+                event.stopPropagation(); // Zabrání šíření události
+            }
+            
+            // Přidání posluchačů událostí pro všechny elementy
+            document.querySelectorAll('*').forEach(element => {
+                element.addEventListener('click', disableClicks);      // Zablokování levého kliknutí
+                element.addEventListener('contextmenu', disableClicks); // Zablokování pravého kliknutí
+            });
         }
 
         console.log(pulbPole[i][j]);
@@ -385,7 +401,7 @@ document.addEventListener('click', function(event) {
                 if((i != 0) && (j != 0)) pracPole[i-1][j-1]  = pracPole[i-1][j-1]-1;
                 if(i != vyska) pracPole[i-0+1][j] = pracPole[i-0+1][j]-1;
                 if(j != sirka) pracPole[i][j-0+1] = pracPole[i][j-0+1]-1;
-                if((i != vyska) && (j != sirka)) pracPole[i-0+1][j+1]  = pracPole[i-0+1][j-0+1]-1;
+                if((i != vyska) && (j != sirka)) pracPole[i-0+1][j-0+1]  = pracPole[i-0+1][j-0+1]-1;
                 if((i != 0) && (j != sirka)) pracPole[i-1][j-0+1] = pracPole[i-1][j-0+1]-1;
                 if((i != vyska) && (j != 0)) pracPole[i-0+1][j-1]  = pracPole[i-0+1][j-1]-1;
 
@@ -396,6 +412,10 @@ document.addEventListener('click', function(event) {
                 console.log(bombPole1.length+bombPole2.length+bombPole3.length+1);
 
                 stav(vyska, sirka, 1);
+
+                bombPole1 = bombPole1.filter(function(item) {
+                    return item !== pozice;
+                });
 
                 document.getElementById(pozice).click();
 
@@ -478,11 +498,21 @@ function odkryvac(i, j){
     var leva = -1;
     var prava = -1;
 
+    var nahoruLeva = -1;
+    var doluLeva = -1;
+    var nahoruPrava = -1;
+    var doluPrava = -1;
+
     console.log(i + " + " + j + "; " + forward + "-" + j + " + " + down + "-" + j + " + " + i + "-" + right + " + " + i + "-" + left);
     if((forward != null)&&(forward > -1)&&(forward < vyska)) {nahoru = pulbPole[forward][j];} //neumyslny hack
     if((down != null)&&(down > -1)&&(down < vyska)) {dolu = pulbPole[down][j];}
     if((left != null)&&(left > -1)&&(left < sirka)) {leva = pulbPole[i][left];} //neumyslny hack
     if((right != null)&&(right > -1)&&(right < sirka)) {prava = pulbPole[i][right];} //neumyslny hack
+
+    if((forward != null)&&(forward > -1)&&(forward < vyska)&&(left != null)&&(left > -1)&&(left < vyska)) {nahoruLeva = pulbPole[forward][left];} //neumyslny hack
+    if((down != null)&&(down > -1)&&(down < vyska)&&(left != null)&&(left > -1)&&(left < vyska)) {doluLeva = pulbPole[down][left];}
+    if((forward != null)&&(forward > -1)&&(forward < vyska)&&(right != null)&&(right > -1)&&(right < sirka)) {nahoruPrava = pulbPole[forward][right];} //neumyslny hack
+    if((down != null)&&(down > -1)&&(down < vyska)&&(right != null)&&(right > -1)&&(right < sirka)) {doluPrava = pulbPole[down][right];}
 
     if((nahoru == 0)||((lokal == 0)&&(nahoru != -1)&&(nahoru < vyska))){
         console.log(nahoru);
@@ -503,6 +533,28 @@ function odkryvac(i, j){
         console.log(prava);
         document.getElementById(i + ' + ' + right).click();
     }
+
+    
+    if(((nahoru == 0)||(leva == 0))&&((lokal == 0)&&(nahoruLeva != -1)&&(nahoru < vyska)&&(leva < sirka))){
+        console.log(nahoruLeva);
+        document.getElementById(forward + ' + ' + left).click();
+    }
+
+    if(((dolu == 0)||(leva == 0))&&((lokal == 0)&&(doluLeva != -1)&&(dolu < vyska)&&(leva < sirka))){
+        console.log(doluLeva);
+        document.getElementById(down + ' + ' + left).click();
+    }
+
+    if(((nahoru == 0)||(prava == 0))&&((lokal == 0)&&(nahoruPrava != -1)&&(nahoru < vyska)&&(prava < sirka))){
+        console.log(nahoruPrava);
+        document.getElementById(forward + ' + ' + right).click();
+    }
+
+    if(((dolu == 0)||(prava == 0))&&((lokal == 0)&&(doluPrava != -1)&&(dolu < vyska)&&(prava < sirka))){
+        console.log(doluPrava);
+        document.getElementById(down + ' + ' + right).click();
+    }
+    
 }
 
 function poleVytvarec(radky, sloupce, naplnene = 0) {
@@ -521,10 +573,11 @@ function createPopup(win) {
     var gifImg = popup.document.createElement("img");
     if(win){
         gifImg.src = "img/WinGIF.gif";
+        gifImg.alt = "Loading výhry...";
     } else {
-    gifImg.src = "img/DefeatGIF.gif";
+        gifImg.src = "img/DefeatGIF.gif";
+        gifImg.alt = "Loading prohry...";
         }
-    gifImg.alt = "Loading...";
 
     popup.document.body.appendChild(gifImg);
 }
