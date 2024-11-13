@@ -392,7 +392,7 @@ document.addEventListener('click', function(event) {
                 console.log("Metoduji");
                 let pracPole = Array.from(pulbPole);
                 console.log(pulbPole);
-                alert(pulbPole);
+                //alert(pulbPole);
                 pracPole[i][j] = pracPole[i][j]-9;
                 console.log(pracPole);
                 console.log("momenalně je na pracovím poli: " + pracPole[i][j]);
