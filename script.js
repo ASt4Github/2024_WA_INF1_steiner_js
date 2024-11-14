@@ -303,7 +303,7 @@ document.addEventListener("contextmenu", function(event) {
             imgElement.src = "img/Unknowpoint.png";
 
             // Odstranění `disableClicks` handleru z obrázku
-            imgElement.removeEventListener('click', disableClicks);
+            imgElement.removeEventListener('click', disableClicks(event));
 
             event.preventDefault();
 
@@ -323,7 +323,7 @@ document.addEventListener("contextmenu", function(event) {
             imgElement.src = "img/Marker.png";
 
             // Přidání `disableClicks` pro zablokování kliknutí na obrázek
-            imgElement.addEventListener('click', disableClicks);
+            imgElement.addEventListener('click', disableClicks(event));
 
             event.preventDefault();
 
@@ -351,6 +351,15 @@ document.addEventListener('click', function(event) {
         const delidlo = pozice.split(" ");
         let i = delidlo[0];
         let j = delidlo[2];
+
+        //kontola otočení vlaječky
+        if(vlajecka.includes(pozice)){
+            console.log("obsahuji");
+            vlajecka = vlajecka.filter(function(item) {
+                return item !== pozice;
+            });
+            setText();
+        }
 
         //kotrola vyhry
         let bombPole = Number(bombPole1.length) + Number(bombPole2.length) + Number(bombPole3.length);
