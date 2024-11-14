@@ -9,6 +9,7 @@ var pracuj = true;
 var first = false;
 var sirka;
 var vyska;
+var allowed = true;
 var sicher = 1;
 
 //prvni stranka
@@ -248,10 +249,25 @@ function flipoTvor(druh, i, j){
     flipCardFront.className = 'flip-card-front';
 
     //otoceni
+    let allowedToFlip = true; // Příklad podmínky, která určuje, zda lze kartu otočit
+
+    flipCard.addEventListener('click', function handleClick(event) {
+        if (!vlajecka.includes(i + " + " + j)) { // Zkontrolujeme, zda je podmínka splněna
+            flipCardInner.classList.add('flipped');
+            flipCard.removeEventListener('click', handleClick);
+        } else {
+            console.log("Kliknutí není povoleno.");
+        }
+    });
+
+    /*
+
     flipCard.addEventListener('click', function handleClick(event) {
         flipCardInner.classList.add('flipped');
         flipCard.removeEventListener('click', handleClick);
     });
+
+    */
     
     //predni cast
     const img = document.createElement('img');
@@ -352,6 +368,8 @@ document.addEventListener('click', function(event) {
         const delidlo = pozice.split(" ");
         let i = delidlo[0];
         let j = delidlo[2];
+
+        if(!vlajecka.includes(pozice)){
 
         //kontola otočení vlaječky
         if(vlajecka.includes(pozice)){
@@ -464,6 +482,7 @@ document.addEventListener('click', function(event) {
                     console.log("vybuch na miste:" + poziceBomby);
                     document.getElementById(poziceBomby).click();
                 }
+                /*
 
                 const images = document.querySelectorAll('img');
 
@@ -471,6 +490,8 @@ document.addEventListener('click', function(event) {
                 images.forEach(img => {
                     img.click();
                 });
+
+                */
                 
             }
 
@@ -499,6 +520,7 @@ document.addEventListener('click', function(event) {
         if(!odkryto.includes(pozice)){
             odkryto.push(pozice);
         }
+    }
         
     }
 });
