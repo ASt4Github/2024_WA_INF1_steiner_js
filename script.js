@@ -54,7 +54,7 @@ if (app) {
 }
 
 function strankoPrestup(param) {
-    window.location.href = 'Game.html?myParam=' + encodeURIComponent(param);
+    window.location.href = 'game.html?myParam=' + encodeURIComponent(param);
 }
 
 function reloadPage() {
