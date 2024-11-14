@@ -9,6 +9,7 @@ var pracuj = true;
 var first = false;
 var sirka;
 var vyska;
+var sicher = 1;
 
 //prvni stranka
 
@@ -365,8 +366,8 @@ document.addEventListener('click', function(event) {
         let bombPole = Number(bombPole1.length) + Number(bombPole2.length) + Number(bombPole3.length);
         let vyresene =  Number(odkryto.length) + Number(vlajecka.length);
         console.log(odkryto);
-        console.log("kontrola vyhry: " + (vyska*sirka) + " == " + (vyresene+1) + " && " + vlajecka.length + " == " + bombPole);
-        if (((vyska*sirka) == vyresene+1) && (vlajecka.length == bombPole)){
+        console.log("kontrola vyhry: " + (vyska*sirka) + " == " + (vyresene+sicher) + " && " + vlajecka.length + " == " + bombPole);
+        if (((vyska*sirka) == vyresene+sicher) && (vlajecka.length == bombPole)){
             console.log("---vyhra!---");
             createPopup(true);
             setTimeout(stopTimer, 0);
@@ -397,6 +398,7 @@ document.addEventListener('click', function(event) {
             console.log("predmetoduji")
             if(!first){
                 first = true;
+                sicher = 1;
 
                 console.log("Metoduji");
                 let pracPole = Array.from(pulbPole);

@@ -14,8 +14,6 @@ img{
   animation-iteration-count: infinite;
 }
 
-
-
 .flip-card-inner.flipped:hover {
     /* Start the shake animation and make the animation last for 0.5 seconds */
     animation: shake 0s;
