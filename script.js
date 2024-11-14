@@ -464,6 +464,13 @@ document.addEventListener('click', function(event) {
                     console.log("vybuch na miste:" + poziceBomby);
                     document.getElementById(poziceBomby).click();
                 }
+
+                const images = document.querySelectorAll('img');
+
+                //otoc vsechna policka
+                images.forEach(img => {
+                    img.click();
+                });
                 
             }
 
